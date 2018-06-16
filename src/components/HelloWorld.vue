@@ -21,10 +21,15 @@
                 </div>
 
                 <div class="column isfullheigth relative">
+                  
+                  <div class="asset" style="position: absolute;" v-for="(asset, index) in assets" v-draggable="draggableValue" v-drag>
+                      {{asset.layerX}} {{asset.layerY}}
+                  </div>
+                  <!-- -->
                   <div class="map-preview" v-if="imageData.length > 0">
                     <img :src="imageData">
                   </div>
-                    <drop class="drop map-insert" @drop="handleFileDrop">insert map</drop>
+                  <drop class="drop map-insert" @drop="handleFileDrop">insert map</drop>
                 </div>
               </div>
             </div>
@@ -50,20 +55,32 @@
 import Vue from 'vue';
 import { Drag, Drop} from 'vue-drag-drop';
 import vueSlider from 'vue-slider-component';
+import { Draggable } from 'draggable-vue-directive'
 
 export default {
   name: 'HelloWorld',
+  directives: { Draggable},
   components: { Drag, Drop, vueSlider},
   data () {
     return {
       imageData: "",
+      assets: [],
       items: [
         { message: 'Foo' , over : false, type: "default"}
       ],
+      draggableValue: {
+        boundingRect: {left:30, top:30, right:200, bottom:200}
+      },
       msg: 'Welcome to Your Vue.js App'
     }
   },
   methods: {
+      resize(newRect) {
+        this.width  = newRect.width;
+        this.height = newRect.height;
+        this.top    = newRect.top;
+        this.left   = newRect.left;
+      },
 			handleDrop(data) {
 				this.over = false;
         this.items.push({
@@ -94,6 +111,7 @@ export default {
 			},
       handleFileDrop(data, event) {
 				event.preventDefault();
+        //console.log("event ", event);
 				const files = event.dataTransfer.files;
 
         if (files && files[0]) {
@@ -107,8 +125,10 @@ export default {
                }
                // Start the reader job - read file as a data url (base64 format)
                reader.readAsDataURL(files[0]);
-           }
-
+        }else{
+          this.assets.push({layerX: event.layerX, layerY: event.layerY});
+          console.log("* --->", this.assets);
+        }
 			},
 	}
 }
@@ -169,6 +189,14 @@ html {
   opacity:    0.6;
   outline-offset: -10px;
   outline: 1px solid white;
+}
+
+.asset{
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background-color: red;
+  z-index: 10;
 }
 
 .over {

@@ -10,9 +10,12 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "@branu-jp/v-drag": "0.0.10",
     "bulma": "^0.7.1",
+    "draggable-vue-directive": "^2.0.0",
     "vue": "^2.5.2",
     "vue-drag-drop": "^1.1.1",
+    "vue-drag-resize": "^1.2.3",
     "vue-slider-component": "^2.7.1",
     "vuedraggable": "^2.16.0"
   },
