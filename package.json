@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@branu-jp/v-drag": "0.0.10",
+    "animejs": "^2.2.0",
     "bulma": "^0.7.1",
     "draggable-vue-directive": "^2.0.0",
     "vue": "^2.5.2",

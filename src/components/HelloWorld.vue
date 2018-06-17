@@ -2,7 +2,7 @@
   <div class="hello">
     <div class="columns isfullheigth">
       <div class="column is-one-fifth has-background-primary isfullheigth">
-        <div>elmt</div>
+        <div id="uuu">elmt</div>
         <div>elmt</div>
         <div>elmt</div>
         <drag class="drag" :transfer-data="{ example: 'styling' }">drag</drag>
@@ -21,8 +21,8 @@
                 </div>
 
                 <div class="column isfullheigth relative">
-                  
-                  <div class="asset" style="position: absolute;" v-for="(asset, index) in assets" v-draggable="draggableValue" v-drag>
+
+                  <div id="zanime" class="asset" style="position: absolute;" v-for="(asset, index) in assets" v-draggable="draggableValue">
                       {{asset.layerX}} {{asset.layerY}}
                   </div>
                   <!-- -->
@@ -56,11 +56,26 @@ import Vue from 'vue';
 import { Drag, Drop} from 'vue-drag-drop';
 import vueSlider from 'vue-slider-component';
 import { Draggable } from 'draggable-vue-directive'
+import anime from 'animejs'
 
 export default {
   name: 'HelloWorld',
   directives: { Draggable},
   components: { Drag, Drop, vueSlider},
+  mounted: function () {
+    this.$nextTick(function () {
+      // Code that will run only after the
+    // entire view has been rendered
+    console.log("mounted", document.getElementById('uuu'));
+    });
+    anime({
+      targets: document.getElementById('uuu'),
+      opacity: .8, // Animate all divs opacity to .8
+      duration: 2000,
+      rotate: 180,
+      backgroundColor: '#FFF' // Animate all divs background color to #FFF
+    });
+  },
   data () {
     return {
       imageData: "",
@@ -127,7 +142,21 @@ export default {
                reader.readAsDataURL(files[0]);
         }else{
           this.assets.push({layerX: event.layerX, layerY: event.layerY});
-          console.log("* --->", this.assets);
+          setTimeout(function afterTwoSeconds() {
+            console.log('2')
+            console.log("* --->", document.getElementById('zanime'));
+            anime({
+              targets: document.getElementById('zanime'),
+              opacity: .8, // Animate all divs opacity to .8
+              duration: 2000,
+              translateX: [
+                { value: 100, duration: 1200 },
+                { value: 0, duration: 800 }
+              ],
+              backgroundColor: '#FFF' // Animate all divs background color to #FFF
+            });
+          }, 100)
+
         }
 			},
 	}
