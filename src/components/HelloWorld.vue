@@ -11,17 +11,10 @@
           <li v-for="(item, index) in items">
 
             <div v-if="item.type == 'map_scenario'">
-              <chronoScene propitem=item></chronoScene>
+              <chronoScene :propitem=item></chronoScene>
             </div> <!-- if -->
 
-            <drop v-else class="drop container"
-              :class="{over : this.over}"
-              @dragover   = "this.over = true"
-              @dragleave  = "this.over = false"
-              @drop       = "handleDrop">
-              {{ item.message }}
-              {{ item.over }}
-            </drop>
+            <customDrop v-else v-bind={handleDrop}></customDrop> <!-- else -->
           </li>
         </ul>
 
@@ -35,10 +28,11 @@
 import Vue from 'vue';
 import { Drag, Drop} from 'vue-drag-drop';
 import chronoScene from './chronoScene.vue'
+import customDrop from './customDrop.vue'
 
 export default {
   name: 'HelloWorld',
-  components: { Drag, Drop, chronoScene},
+  components: { Drag, Drop, chronoScene, customDrop},
   data () {
     return {
       items: [
@@ -47,37 +41,37 @@ export default {
     }
   },
   methods: {
-			handleDrop(data, transferData) {
-        console.log("data ", data, transferData);
-				this.over = false;
+    handleDrop(data, transferData) {
+      console.log("data ", data, transferData);
+      this.over = false;
 
-        this.items.push({
-          message : 'zad',
-          over    : false,
-          type    : data.type,
-          value   : {
-            value: 9,
-            width: 280,
-            height: 8,
-            dotSize: 20,
-            min: 1,
-            max: 25,
-            interval: 4,
-            disabled: false,
-            show: true,
-            speed: 0.3,
-            reverse: false,
-            lazy: true,
-            tooltip: "hover",
-            piecewise: true
-          },
-          bgStyle : {
-             backgroundColor: '#fff',
-             boxShadow: 'inset 0.5px 0.5px 3px 1px rgba(0,0,0,.36)',
-           }
-         });
+      this.items.push({
+        message : 'zad',
+        over    : false,
+        type    : data.type,
+        value   : {
+          value: 9,
+          width: 280,
+          height: 8,
+          dotSize: 20,
+          min: 1,
+          max: 25,
+          interval: 4,
+          disabled: false,
+          show: true,
+          speed: 0.3,
+          reverse: false,
+          lazy: true,
+          tooltip: "hover",
+          piecewise: true
+        },
+        bgStyle : {
+           backgroundColor: '#fff',
+           boxShadow: 'inset 0.5px 0.5px 3px 1px rgba(0,0,0,.36)',
+         }
+       });
+    },
 			},
-	}
 }
 </script>
 
