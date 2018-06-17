@@ -54,6 +54,24 @@ export default {
   methods: {
     onPosChanged(positionDiff, absolutePosition, event) {
         console.log("left corner", positionDiff, absolutePosition, event);
+        if(event && absolutePosition){
+          var asset =  event.target
+          console.log("dsds", event.offsetX);
+          console.log(asset.offsetLeft, asset.offsetTop);
+
+          var assetKey  = event.target.id
+          var assetData = this.assets[assetKey]
+
+          // retourne souvent les mauvais id. Ceux qui ne sont pas lié aux assets
+          if(assetData){
+            var board         = document.getElementById("scenariboard")
+            assetData.layerX  = asset.offsetLeft - board.offsetLeft
+            assetData.layerY  = asset.offsetTop - board.offsetTop
+            Vue.set(this.assets, assetKey, assetData)
+
+            console.log("obj ", asset.offsetTop - board.offsetTop);
+          }
+        }
         //event.target
     },
     slideChange(tick){
