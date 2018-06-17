@@ -61,7 +61,7 @@ export default {
           show: true,
           speed: 0.3,
           reverse: false,
-          lazy: true,
+          lazy: false,
           tooltip: "hover",
           piecewise: true
         },

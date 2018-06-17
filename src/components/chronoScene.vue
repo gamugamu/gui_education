@@ -1,7 +1,7 @@
 <template>
   <div class="map-scenario isfullheigth">
-    <vue-slider v-bind="propitem.value" class="slide-epoc-range"></vue-slider>
-
+    <vue-slider @callback="slideChange" v-bind="propitem.value" class="slide-epoc-range"></vue-slider>
+{{ sliderValueChange }}
     <div class="columns isfullheigth">
       <div class="column has-background-primary is-one-fifth">
         <div>elmt</div>
@@ -9,7 +9,7 @@
       </div> <!-- column -->
 
       <div id="scenariboard" class="column isfullheigth relative">
-        <div id="zanime" class="asset" style="position: absolute;" v-for="(asset, index) in assets" v-draggable="draggableArea">
+        <div :key="asset.id" v-for="(asset, key) in assets" v-bind:id="asset.id" class="asset" style="position: absolute;" v-draggable="draggableArea">
             {{asset.layerX}} {{asset.layerY}}
         </div> <!-- asset-->
         <div id="mappreview" v-show="mapBackground.length > 0">
@@ -36,29 +36,52 @@ export default {
   props: ['propitem'],
   data () {
     return {
+      sliderValueChange: 12,
       mapBackground: "",
-      assets: [],
+      assets: {},
       items: [
         { message: 'Foo' , over : false, type: "default"}
       ],
       draggableArea: {},
-      msg: 'Welcome to Your Vue.js App'
     }
   },
   mounted: function () {
-
-    var elem = document.getElementById("scenariboard");
-    if(elem) {
-       console.log("elem? ", elem);
-       this.draggableArea.boundingElement = elem
-    }
-
+    // boundRect assets | scenariboard
+    var elem = document.getElementById("scenariboard")
+    this.draggableArea.boundingElement  = elem
+    this.draggableArea.onPositionChange = this.onPosChanged
   },
   methods: {
+    onPosChanged(positionDiff, absolutePosition, event) {
+        console.log("left corner", positionDiff, absolutePosition, event);
+        //event.target
+    },
+    slideChange(tick){
+      // TODO extern
+      for(var e in this.assets){
+        console.log("e ", e)
+
+        var asset = this.assets[e]
+        // si il y a un tick, il y a un change à effectuer
+        if(asset.tick === tick){
+          console.log("tick ", asset, asset.id, document.getElementById(asset.id))
+          anime({
+            targets: document.getElementById(asset.id),
+            opacity: .8,
+            duration: 2000,
+            translateX: [
+              { value: 100, duration: 1200 }            ],
+            backgroundColor: '#FFF'
+          });
+        }
+        console.log("e ", asset, asset.tick, tick);
+      }
+    },
       handleFileDrop(data, event) {
 				event.preventDefault();
 				const files = event.dataTransfer.files;
 
+        // background
         if (files && files[0]) {
                var reader = new FileReader();
 
@@ -67,23 +90,15 @@ export default {
                }
 
                reader.readAsDataURL(files[0]);
-        }else{
-          this.assets.push({layerX: event.layerX, layerY: event.layerY});
-          console.log("dsds", document.getElementById('mappreview'));
+        }else /* assets */ {
+          // this.assets["rand_id"] = {...}
+          Vue.set(this.assets, "rand_id", {
+              id      : "rand_id",
+              tick    : this.propitem.value.value,
+              layerX  : event.layerX,
+              layerY  : event.layerY})
 
-          setTimeout(function() {
-
-            anime({
-              targets: document.getElementById('zanime'),
-              opacity: .8, // Animate all divs opacity to .8
-              duration: 2000,
-              translateX: [
-                { value: 100, duration: 1200 },
-                { value: 0, duration: 800 }
-              ],
-              backgroundColor: '#FFF'
-            });
-          }, 100)
+          console.log("push --> ", this.assets);
         }
 			},
 	}
