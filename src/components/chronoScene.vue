@@ -8,11 +8,11 @@
         <a class="button is-primary is-inverted is-outlined">carte</a>
       </div> <!-- column -->
 
-      <div class="column isfullheigth relative">
-        <div id="zanime" class="asset" style="position: absolute;" v-for="(asset, index) in assets" v-draggable="draggableValue">
+      <div id="scenariboard" class="column isfullheigth relative">
+        <div id="zanime" class="asset" style="position: absolute;" v-for="(asset, index) in assets" v-draggable="draggableArea">
             {{asset.layerX}} {{asset.layerY}}
         </div> <!-- asset-->
-        <div class="map-preview" v-if="mapBackground.length > 0">
+        <div id="mappreview" v-show="mapBackground.length > 0">
           <img :src="mapBackground">
         </div> <!-- map-preview -->
         <drop class="drop map-insert" @drop="handleFileDrop">insert map</drop>
@@ -41,19 +41,20 @@ export default {
       items: [
         { message: 'Foo' , over : false, type: "default"}
       ],
-      draggableValue: {
-        boundingRect: {left:30, top:30, right:200, bottom:200}
-      },
+      draggableArea: {},
       msg: 'Welcome to Your Vue.js App'
     }
   },
+  mounted: function () {
+
+    var elem = document.getElementById("scenariboard");
+    if(elem) {
+       console.log("elem? ", elem);
+       this.draggableArea.boundingElement = elem
+    }
+
+  },
   methods: {
-      resize(newRect) {
-        this.width  = newRect.width;
-        this.height = newRect.height;
-        this.top    = newRect.top;
-        this.left   = newRect.left;
-      },
       handleFileDrop(data, event) {
 				event.preventDefault();
 				const files = event.dataTransfer.files;
@@ -68,7 +69,10 @@ export default {
                reader.readAsDataURL(files[0]);
         }else{
           this.assets.push({layerX: event.layerX, layerY: event.layerY});
-          setTimeout(function afterTwoSeconds() {
+          console.log("dsds", document.getElementById('mappreview'));
+
+          setTimeout(function() {
+
             anime({
               targets: document.getElementById('zanime'),
               opacity: .8, // Animate all divs opacity to .8
@@ -113,7 +117,10 @@ export default {
   background: red;
 }
 
-.map-preview{
+#scenariboard{
+}
+
+#mappreview{
   position:   absolute;
   flex:       1 1 auto;
   overflow:   hidden;
