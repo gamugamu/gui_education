@@ -1,13 +1,12 @@
 <template>
   <div class="map-scenario isfullheigth">
     <vue-slider @callback="slideChange" v-bind="propitem.value" class="slide-epoc-range"></vue-slider>
-{{ sliderValueChange }}
+      {{ sliderValueChange }}
     <div class="columns isfullheigth">
       <div class="column has-background-primary is-one-fifth">
         <div>elmt</div>
         <a class="button is-primary is-inverted is-outlined">carte</a>
       </div> <!-- column -->
-
       <div id="scenariboard" class="column isfullheigth relative">
         <div :key="asset.id" v-for="(asset, key) in assets" v-bind:id="asset.id" class="asset" style="position: absolute;" v-draggable="draggableArea">
             {{asset.layerX}} {{asset.layerY}}
@@ -18,7 +17,6 @@
         <drop class="drop map-insert" @drop="handleFileDrop">insert map</drop>
       </div> <!-- column -->
     </div> <!-- columns -->
-
   </div> <!-- if -->
 </template>
 
@@ -26,7 +24,7 @@
 import Vue from 'vue';
 import {Drop} from 'vue-drag-drop';
 import vueSlider from 'vue-slider-component';
-import { Draggable } from 'draggable-vue-directive'
+import {Draggable} from 'draggable-vue-directive'
 import anime from 'animejs'
 
 export default {
@@ -53,26 +51,19 @@ export default {
   },
   methods: {
     onPosChanged(positionDiff, absolutePosition, event) {
-        console.log("left corner", positionDiff, absolutePosition, event);
-        if(event && absolutePosition){
-          var asset =  event.target
-          console.log("dsds", event.offsetX);
-          console.log(asset.offsetLeft, asset.offsetTop);
-
+      console.log("--> event ", event, absolutePosition);
+        if(event && absolutePosition && event.target.className == "asset"){
+          var asset     = event.target
           var assetKey  = event.target.id
           var assetData = this.assets[assetKey]
-
           // retourne souvent les mauvais id. Ceux qui ne sont pas lié aux assets
           if(assetData){
             var board         = document.getElementById("scenariboard")
             assetData.layerX  = asset.offsetLeft - board.offsetLeft
             assetData.layerY  = asset.offsetTop - board.offsetTop
             Vue.set(this.assets, assetKey, assetData)
-
-            console.log("obj ", asset.offsetTop - board.offsetTop);
           }
         }
-        //event.target
     },
     slideChange(tick){
       // TODO extern
@@ -101,13 +92,13 @@ export default {
 
         // background
         if (files && files[0]) {
-               var reader = new FileReader();
+            var reader = new FileReader();
 
-               reader.onload = (e) => {
-                   this.mapBackground = e.target.result;
-               }
+            reader.onload = (e) => {
+               this.mapBackground = e.target.result;
+            }
 
-               reader.readAsDataURL(files[0]);
+            reader.readAsDataURL(files[0]);
         }else /* assets */ {
           // this.assets["rand_id"] = {...}
           Vue.set(this.assets, "rand_id", {

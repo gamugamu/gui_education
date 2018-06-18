@@ -1,5 +1,5 @@
 <template>
-    <drop class="drop container"
+    <drop class="drop"
         :class="{over}"
         @dragover   = "over = true"
         @dragleave  = "over = false"

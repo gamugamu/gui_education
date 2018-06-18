@@ -1,25 +1,22 @@
 <template>
-  <div class="hello">
+  <div>
     <div class="columns isfullheigth">
       <div class="column is-one-fifth has-background-primary isfullheigth">
         <div>elmt</div>
         <drag class="drag" :transfer-data="{type: 'map_scenario'}">drag</drag>
-      </div>
+      </div><!-- column -->
       <div class="column has-background-white-ter">
-
-        <ul id="example-1">
+        <ul>
           <li v-for="(item, index) in items">
-
             <div v-if="item.type == 'map_scenario'">
               <chronoScene :propitem=item></chronoScene>
             </div> <!-- if -->
-
             <customDrop v-else v-bind={handleDrop}></customDrop> <!-- else -->
           </li>
         </ul>
+      </div> <!-- column -->
 
-      </div>
-    </div>
+    </div> <!-- columns -->
 
   </div>
 </template>
