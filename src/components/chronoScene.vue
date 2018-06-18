@@ -76,10 +76,7 @@ export default {
           console.log("tick ", asset, asset.id, document.getElementById(asset.id))
           anime({
             targets: document.getElementById(asset.id),
-            opacity: .8,
-            duration: 2000,
-            translateX: [
-              { value: 100, duration: 1200 }            ],
+            left: '500px',
             backgroundColor: '#FFF'
           });
         }
@@ -115,7 +112,6 @@ export default {
 </script>
 
 <style scoped>
-
 .relative{
   position: relative;
 }
