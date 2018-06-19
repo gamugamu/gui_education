@@ -51,7 +51,6 @@ export default {
   },
   methods: {
     onPosChanged(positionDiff, absolutePosition, event) {
-      console.log("--> event ", event, absolutePosition);
         if(event && absolutePosition && event.target.className == "asset"){
           var asset     = event.target
           var assetKey  = event.target.id
@@ -73,12 +72,33 @@ export default {
         var asset = this.assets[e]
         // si il y a un tick, il y a un change à effectuer
         if(asset.tick === tick){
-          console.log("tick ", asset, asset.id, document.getElementById(asset.id))
-          anime({
-            targets: document.getElementById(asset.id),
+          console.log("tick ", asset, asset.id)
+          var assetDrag = document.getElementById(asset.id);
+          var animeCallback = anime({
+            targets: assetDrag,
             left: '500px',
             backgroundColor: '#FFF'
           });
+
+          animeCallback.complete = function(anim) {
+            var asset = anim.animatables[0].target
+            // Oui, l'update de la position est mega pénible!. Drag
+            // conserve des meta de positions. A externaliser
+            var draggable = assetDrag.getAttribute("draggable-state")
+            draggable     = JSON.parse(draggable)     // ** deserial
+            console.log("XX-> ", draggable);
+          //  draggable.currentDragPosition = {"left" : 0, "top" : 0}
+            draggable.startDragPosition.left = 500;
+
+            draggable     = JSON.stringify(draggable) // ** serial
+            console.log("YY-> ", draggable);
+
+            assetDrag.setAttribute("draggable-state", draggable)
+
+
+            //console.log("dddcompleted ", anim, "XXX", anim.animatables[0].target,   anim.animatables[0].target.draggableState);
+          };
+
         }
         console.log("e ", asset, asset.tick, tick);
       }
