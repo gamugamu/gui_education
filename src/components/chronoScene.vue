@@ -1,15 +1,15 @@
 <template>
   <div class="map-scenario isfullheigth">
-    <vue-slider @callback="slideChange" v-bind="propitem.value" class="slide-epoc-range"></vue-slider>
-      {{ sliderValueChange }}
+    <vue-slider @callback="slideChange" v-model="slidervalue" v-bind="propitem.value" class="slide-epoc-range"></vue-slider>
     <div class="columns isfullheigth">
       <div class="column has-background-primary is-one-fifth">
         <div>elmt</div>
         <a class="button is-primary is-inverted is-outlined">carte</a>
       </div> <!-- column -->
       <div id="scenariboard" class="column isfullheigth relative">
-        <div :key="asset.id" v-for="(asset, key) in assets" v-bind:id="asset.id" class="asset" style="position: absolute;" v-draggable="draggableArea">
-            {{asset.layerX}} {{asset.layerY}}
+        <div :key="asset.id" v-for="(asset, key) in assets" v-bind:id="asset.id" class="asset" v-draggable="draggableArea">
+          <img  class="medal" alt="imgAvatar">
+
         </div> <!-- asset-->
         <div id="mappreview" v-show="mapBackground.length > 0">
           <img :src="mapBackground">
@@ -26,6 +26,14 @@ import {Drop} from 'vue-drag-drop';
 import vueSlider from 'vue-slider-component';
 import {Draggable} from 'draggable-vue-directive'
 import anime from 'animejs'
+import {AssetScenario} from '../logic/asset.js'
+
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default {
   name: 'chronoScene',
@@ -34,7 +42,7 @@ export default {
   props: ['propitem'],
   data () {
     return {
-      sliderValueChange: 12,
+      slidervalue : 1, // alias getCurrentTimeLine(). ReadOnly
       mapBackground: "",
       assets: {},
       items: [
@@ -50,64 +58,76 @@ export default {
     this.draggableArea.onPositionChange = this.onPosChanged
   },
   methods: {
+    getCurrentTimeLine(){
+        return this.slidervalue;
+    },
     onPosChanged(positionDiff, absolutePosition, event) {
         if(event && absolutePosition && event.target.className == "asset"){
-          var asset     = event.target
           var assetKey  = event.target.id
-          var assetData = this.assets[assetKey]
+          var asset     = this.assets[assetKey]
           // retourne souvent les mauvais id. Ceux qui ne sont pas lié aux assets
-          if(assetData){
-            var board         = document.getElementById("scenariboard")
-            assetData.layerX  = asset.offsetLeft - board.offsetLeft
-            assetData.layerY  = asset.offsetTop - board.offsetTop
-            Vue.set(this.assets, assetKey, assetData)
+          if(asset){
+            // on récupère la valeur indiqué par le range: C'est lui le controleur
+            // de la timeLine
+            var timeline  = this.getCurrentTimeLine()
+            var board     = document.getElementById("scenariboard")
+            var guiAsset  = document.getElementById(assetKey)
+            // calcul offset. Relatif au board
+            var layerX    = guiAsset.offsetLeft - board.offsetLeft
+            var layerY    = guiAsset.offsetTop - board.offsetTop
+
+            /***/
+            asset.updateTick(timeline, layerX, layerY)
           }
         }
     },
     slideChange(tick){
       // TODO extern
-      for(var e in this.assets){
-        console.log("e ", e)
-
-        var asset = this.assets[e]
+      for(var assetId in this.assets){
+        var asset     = this.assets[assetId]
+        var assetTick = asset.tickFor(tick)
         // si il y a un tick, il y a un change à effectuer
-        if(asset.tick === tick){
-          console.log("tick ", asset, asset.id)
-          var assetDrag = document.getElementById(asset.id);
+        if(assetTick){
+          console.log("new tick*** ", assetTick);
+        //  console.log("tick ", assetTick)
+          var assetDrag = document.getElementById(assetId);
+          var board     = document.getElementById("scenariboard")
+          // inverse, position absolu
+          var vectlayerX    = assetTick.layerX + board.offsetLeft
+          var vectlayerY    = assetTick.layerY + board.offsetTop
+          console.log("--> ", assetDrag);
+          // Note: Les valeurs sont relative au board
           var animeCallback = anime({
-            targets: assetDrag,
-            left: '500px',
-            backgroundColor: '#FFF'
+            targets         : assetDrag,
+            left            : vectlayerX,
+            top             : vectlayerY,
+            backgroundColor : '#FFF',
+            easing          : 'easeInOutSine',
+            duration        : 200
           });
 
+          // Effectue les correctifs d'affichage entre animation et drag
           animeCallback.complete = function(anim) {
-            var asset = anim.animatables[0].target
             // Oui, l'update de la position est mega pénible!. Drag
-            // conserve des meta de positions. A externaliser
+            // conserve des meta de positions, et faut les réupdater.A externaliser
             var draggable = assetDrag.getAttribute("draggable-state")
             draggable     = JSON.parse(draggable)     // ** deserial
-            console.log("XX-> ", draggable);
-          //  draggable.currentDragPosition = {"left" : 0, "top" : 0}
-            draggable.startDragPosition.left = 500;
+            //  draggable.currentDragPosition = {"left" : 0, "top" : 0}
+            draggable.startDragPosition.left  = vectlayerX;
+            draggable.startDragPosition.top   = vectlayerY;
 
             draggable     = JSON.stringify(draggable) // ** serial
-            console.log("YY-> ", draggable);
 
             assetDrag.setAttribute("draggable-state", draggable)
-
-
-            //console.log("dddcompleted ", anim, "XXX", anim.animatables[0].target,   anim.animatables[0].target.draggableState);
-          };
-
-        }
-        console.log("e ", asset, asset.tick, tick);
-      }
+          }; // animeCallback
+        } // end tick
+      } // for
     },
       handleFileDrop(data, event) {
 				event.preventDefault();
 				const files = event.dataTransfer.files;
 
-        // background
+        // ajout background
         if (files && files[0]) {
             var reader = new FileReader();
 
@@ -116,15 +136,10 @@ export default {
             }
 
             reader.readAsDataURL(files[0]);
-        }else /* assets */ {
-          // this.assets["rand_id"] = {...}
-          Vue.set(this.assets, "rand_id", {
-              id      : "rand_id",
-              tick    : this.propitem.value.value,
-              layerX  : event.layerX,
-              layerY  : event.layerY})
-
-          console.log("push --> ", this.assets);
+        }else /* ajout assets */ {
+          var assetId       = "asset_" + uuidv4() /* TODO génerer random */
+          var assetScenario = new AssetScenario(assetId, this.getCurrentTimeLine(), event.layerX, event.layerY)
+          Vue.set(this.assets, assetId, assetScenario)
         }
 			},
 	}
@@ -149,7 +164,7 @@ export default {
   padding: 0px;
   display: flex;
   flex-flow:column;
-  background: black;
+  background: yellow;
 }
 
 .slide-epoc-range{
@@ -175,17 +190,21 @@ export default {
   padding: 20px;
   height: 100%;
   z-index: 5;
-  background-color: blue;
-  opacity:    0.6;
+  background-color: black;
+  opacity:    0.4;
   outline-offset: -10px;
   outline: 1px solid white;
 }
 
 .asset{
   position: absolute;
-  width: 60px;
-  height: 60px;
-  background-color: red;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
   z-index: 10;
+  background-color: red;
+}
+
+.medal{
 }
 </style>
