@@ -8,8 +8,7 @@
       </div> <!-- column -->
       <div id="scenariboard" class="column isfullheigth relative">
         <div :key="asset.id" v-for="(asset, key) in assets" v-bind:id="asset.id" class="asset" v-draggable="draggableArea">
-          <img  class="medal" alt="imgAvatar">
-
+          <img src="../assets/tmps/xander.jpg" class="medal" alt="imgAvatar">
         </div> <!-- asset-->
         <div id="mappreview" v-show="mapBackground.length > 0">
           <img :src="mapBackground">
@@ -62,9 +61,12 @@ export default {
         return this.slidervalue;
     },
     onPosChanged(positionDiff, absolutePosition, event) {
-        if(event && absolutePosition && event.target.className == "asset"){
-          var assetKey  = event.target.id
+        if(event && absolutePosition && event.target.className === "medal") /* medal or asset */ {
+          /* container de medal*/
+          var parent    = event.target.parentElement
+          var assetKey  = parent.id
           var asset     = this.assets[assetKey]
+
           // retourne souvent les mauvais id. Ceux qui ne sont pas lié aux assets
           if(asset){
             // on récupère la valeur indiqué par le range: C'est lui le controleur
@@ -75,7 +77,6 @@ export default {
             // calcul offset. Relatif au board
             var layerX    = guiAsset.offsetLeft - board.offsetLeft
             var layerY    = guiAsset.offsetTop - board.offsetTop
-
             /***/
             asset.updateTick(timeline, layerX, layerY)
           }
@@ -92,16 +93,17 @@ export default {
         //  console.log("tick ", assetTick)
           var assetDrag = document.getElementById(assetId);
           var board     = document.getElementById("scenariboard")
+
+          console.log("board *** ", board);
           // inverse, position absolu
           var vectlayerX    = assetTick.layerX + board.offsetLeft
           var vectlayerY    = assetTick.layerY + board.offsetTop
-          console.log("--> ", assetDrag);
+
           // Note: Les valeurs sont relative au board
           var animeCallback = anime({
             targets         : assetDrag,
             left            : vectlayerX,
             top             : vectlayerY,
-            backgroundColor : '#FFF',
             easing          : 'easeInOutSine',
             duration        : 200
           });
@@ -173,6 +175,7 @@ export default {
 }
 
 #scenariboard{
+  overflow:   hidden;
 }
 
 #mappreview{
@@ -198,13 +201,12 @@ export default {
 
 .asset{
   position: absolute;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
+  width: 60px;
+  height: 60px;
   z-index: 10;
-  background-color: red;
 }
 
 .medal{
+  border-radius: 50%;
 }
 </style>
